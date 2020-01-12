@@ -3,6 +3,7 @@
         "Renderable",
         "renderables",
         "rltk",
+        "rustacean",
         "wasm"
     ]
 }
