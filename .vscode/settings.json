@@ -3,6 +3,7 @@
         "Numpad",
         "Renderable",
         "Viewshed",
+        "clippy",
         "greyscale",
         "pathing",
         "ppos",
