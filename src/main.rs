@@ -16,6 +16,8 @@ mod visibility_system;
 use visibility_system::VisibilitySystem;
 mod monster_ai_system;
 use monster_ai_system::MonsterAI;
+mod map_indexing_system;
+use map_indexing_system::MapIndexingSystem;
 
 rltk::add_wasm_support!();
 
@@ -33,9 +35,11 @@ pub struct State {
 impl State {
     fn run_systems(&mut self) {
         let mut vis = VisibilitySystem {};
-        vis.run_now(&self.ecs);
         let mut mob = MonsterAI {};
+        let mut map_idx = MapIndexingSystem {};
+        vis.run_now(&self.ecs);
         mob.run_now(&self.ecs);
+        map_idx.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -79,6 +83,7 @@ fn main() {
     gs.ecs.register::<Viewshed>();
     gs.ecs.register::<Monster>();
     gs.ecs.register::<Name>();
+    gs.ecs.register::<BlocksTile>();
 
     // Generate Map
     let map: Map = Map::new_map_rooms_and_corridors();
@@ -119,6 +124,7 @@ fn main() {
             .with(Name {
                 name: format!("{} #{}", &name, i),
             })
+            .with(BlocksTile{})
             .build();
     }
 
