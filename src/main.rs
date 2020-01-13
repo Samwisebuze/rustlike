@@ -84,12 +84,13 @@ fn main() {
     gs.ecs.register::<Monster>();
     gs.ecs.register::<Name>();
     gs.ecs.register::<BlocksTile>();
+    gs.ecs.register::<CombatStats>();
 
     // Generate Map
     let map: Map = Map::new_map_rooms_and_corridors();
     // Get Player's Spawn
     let (player_x, player_y) = map.rooms[0].center();
-    
+
     let mut rng = RandomNumberGenerator::new();
     for (i, room) in map.rooms.iter().skip(1).enumerate() {
         let (x, y) = room.center();
@@ -124,7 +125,13 @@ fn main() {
             .with(Name {
                 name: format!("{} #{}", &name, i),
             })
-            .with(BlocksTile{})
+            .with(CombatStats {
+                max_hp: 16,
+                hp: 16,
+                defense: 1,
+                power: 4,
+            })
+            .with(BlocksTile {})
             .build();
     }
 
@@ -149,6 +156,12 @@ fn main() {
         })
         .with(Name {
             name: "Player".to_string(),
+        })
+        .with(CombatStats {
+            max_hp: 30,
+            hp: 30,
+            defense: 2,
+            power: 5,
         })
         .build();
 
