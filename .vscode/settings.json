@@ -5,8 +5,10 @@
         "Viewshed",
         "greyscale",
         "pathing",
+        "ppos",
         "renderables",
         "rltk",
+        "runstate",
         "rustacean",
         "viewsheds",
         "wasm"
