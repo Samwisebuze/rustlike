@@ -1,11 +1,9 @@
- 
 extern crate rltk;
-use rltk::{ RGB, Rltk, Console, RandomNumberGenerator, BaseMap, Algorithm2D, Point };
-use super::{Rect};
+use super::Rect;
+use rltk::{Algorithm2D, BaseMap, Console, Point, RandomNumberGenerator, Rltk, RGB};
 use std::cmp::{max, min};
 extern crate specs;
 use specs::prelude::*;
-
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum TileType {
@@ -15,12 +13,12 @@ pub enum TileType {
 
 #[derive(Default)]
 pub struct Map {
-    pub tiles : Vec<TileType>,
-    pub rooms : Vec<Rect>,
-    pub width : i32,
-    pub height : i32,
-    pub revealed_tiles : Vec<bool>,
-    pub visible_tiles : Vec<bool>
+    pub tiles: Vec<TileType>,
+    pub rooms: Vec<Rect>,
+    pub width: i32,
+    pub height: i32,
+    pub revealed_tiles: Vec<bool>,
+    pub visible_tiles: Vec<bool>,
 }
 
 impl Map {
@@ -28,9 +26,9 @@ impl Map {
         (y as usize * self.width as usize) + x as usize
     }
 
-    fn apply_room_to_map(&mut self, room : &Rect) {
-        for y in room.y1 +1 ..= room.y2 {
-            for x in room.x1 + 1 ..= room.x2 {
+    fn apply_room_to_map(&mut self, room: &Rect) {
+        for y in room.y1 + 1..=room.y2 {
+            for x in room.x1 + 1..=room.x2 {
                 let idx = self.xy_idx(x, y);
                 self.tiles[idx] = TileType::Floor;
             }
@@ -38,8 +36,8 @@ impl Map {
     }
 
     /// Creates a horizontal tunnel between two
-    fn apply_horizontal_tunnel(&mut self, x1:i32, x2:i32, y:i32) {
-        for x in min(x1,x2) ..= max(x1,x2) {
+    fn apply_horizontal_tunnel(&mut self, x1: i32, x2: i32, y: i32) {
+        for x in min(x1, x2)..=max(x1, x2) {
             let idx = self.xy_idx(x, y);
             if idx > 0 && idx < self.width as usize * self.height as usize {
                 self.tiles[idx as usize] = TileType::Floor;
@@ -48,8 +46,8 @@ impl Map {
     }
 
     /// Creates a vertical tunnel between two points
-    fn apply_vertical_tunnel(&mut self, y1:i32, y2:i32, x:i32) {
-        for y in min(y1,y2) ..= max(y1,y2) {
+    fn apply_vertical_tunnel(&mut self, y1: i32, y2: i32, x: i32) {
+        for y in min(y1, y2)..=max(y1, y2) {
             let idx = self.xy_idx(x, y);
             if idx > 0 && idx < self.width as usize * self.height as usize {
                 self.tiles[idx as usize] = TileType::Floor;
@@ -60,12 +58,12 @@ impl Map {
     /// This gives a handful of random rooms and corridors joining them together.
     pub fn new_map_rooms_and_corridors() -> Map {
         let mut map = Map {
-            tiles : vec![TileType::Wall; 80*50],
-            rooms : Vec::new(),
-            width : 80,
+            tiles: vec![TileType::Wall; 80 * 50],
+            rooms: Vec::new(),
+            width: 80,
             height: 50,
-            revealed_tiles : vec![false; 80*50],
-            visible_tiles : vec![false; 80*50]
+            revealed_tiles: vec![false; 80 * 50],
+            visible_tiles: vec![false; 80 * 50],
         };
 
         const MAX_ROOMS: i32 = 30;
@@ -108,15 +106,15 @@ impl Map {
 }
 
 impl BaseMap for Map {
-    fn is_opaque(&self, idx:i32) -> bool {
+    fn is_opaque(&self, idx: i32) -> bool {
         self.tiles[idx as usize] == TileType::Wall
     }
 
-    fn get_available_exits(&self, _idx:i32) -> Vec<(i32, f32)> {
+    fn get_available_exits(&self, _idx: i32) -> Vec<(i32, f32)> {
         Vec::new()
     }
 
-    fn get_pathing_distance(&self, idx1:i32, idx2:i32) -> f32 {
+    fn get_pathing_distance(&self, idx1: i32, idx2: i32) -> f32 {
         let p1 = Point::new(idx1 % self.width, idx1 / self.width);
         let p2 = Point::new(idx2 % self.width, idx2 / self.width);
         rltk::DistanceAlg::Pythagoras.distance2d(p1, p2)
@@ -124,25 +122,28 @@ impl BaseMap for Map {
 }
 
 impl Algorithm2D for Map {
-    fn in_bounds(&self, pos : Point) -> bool {
-        pos.x > 0 && pos.x < self.width-1 && pos.y > 0 && pos.y < self.height-1
+    fn in_bounds(&self, pos: Point) -> bool {
+        pos.x > 0 && pos.x < self.width - 1 && pos.y > 0 && pos.y < self.height - 1
     }
 
     fn point2d_to_index(&self, pt: Point) -> i32 {
         (pt.y * self.width) + pt.x
     }
 
-    fn index_to_point2d(&self, idx:i32) -> Point {
-        Point{ x: idx % self.width, y: idx / self.width }
+    fn index_to_point2d(&self, idx: i32) -> Point {
+        Point {
+            x: idx % self.width,
+            y: idx / self.width,
+        }
     }
 }
 
-pub fn draw_map(ecs: &World, ctx : &mut Rltk) {
+pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
     let map = ecs.fetch::<Map>();
 
     let mut y = 0;
     let mut x = 0;
-    for (idx,tile) in map.tiles.iter().enumerate() {
+    for (idx, tile) in map.tiles.iter().enumerate() {
         // Render a tile depending upon the tile type
 
         if map.revealed_tiles[idx] {
@@ -158,7 +159,9 @@ pub fn draw_map(ecs: &World, ctx : &mut Rltk) {
                     fg = RGB::from_f32(0., 1.0, 0.);
                 }
             }
-            if !map.visible_tiles[idx] { fg = fg.to_greyscale() }
+            if !map.visible_tiles[idx] {
+                fg = fg.to_greyscale()
+            }
             ctx.set(x, y, fg, RGB::from_f32(0., 0., 0.), glyph);
         }
 
