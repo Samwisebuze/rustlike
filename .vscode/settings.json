@@ -1,9 +1,14 @@
 {
     "cSpell.words": [
+        "Numpad",
         "Renderable",
+        "Viewshed",
+        "greyscale",
+        "pathing",
         "renderables",
         "rltk",
         "rustacean",
+        "viewsheds",
         "wasm"
     ]
 }
