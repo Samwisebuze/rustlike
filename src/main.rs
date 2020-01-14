@@ -26,12 +26,12 @@ mod gui;
 mod gamelog;
 mod spawner;
 mod inventory_system;
-use inventory_system::{ItemCollectionSystem, PotionUseSystem};
+use inventory_system::{ItemCollectionSystem, PotionUseSystem, ItemDropSystem};
 
 rltk::add_wasm_support!();
 
 #[derive(PartialEq, Copy, Clone)]
-pub enum RunState { AwaitingInput, PreRun, PlayerTurn, MonsterTurn, ShowInventory }    
+pub enum RunState { AwaitingInput, PreRun, PlayerTurn, MonsterTurn, ShowInventory, ShowDropItem }    
 
 pub struct State {
     pub ecs: World,
@@ -46,12 +46,14 @@ impl State {
         let mut melee = MeleeCombatSystem {};
         let mut pickup = ItemCollectionSystem{};
         let mut potions = PotionUseSystem{};
+        let mut drop_items = ItemDropSystem{};
         vis.run_now(&self.ecs);
         mob.run_now(&self.ecs);
         map_idx.run_now(&self.ecs);
         melee.run_now(&self.ecs);
         dmg.run_now(&self.ecs);
         pickup.run_now(&self.ecs);
+        drop_items.run_now(&self.ecs);
         potions.run_now(&self.ecs);
         self.ecs.maintain();
     }
@@ -96,6 +98,21 @@ impl GameState for State {
                         intent.insert(  *self.ecs.fetch::<Entity>(), 
                                         WantsToDrinkPotion{ potion: item_entity })
                                 .expect("Unable to insert intent");
+                        newrunstate = RunState::PlayerTurn;
+                    }
+                }
+            }
+            RunState::ShowDropItem => {
+                let result = gui::drop_item_menu(self, ctx);
+                match result.0 {
+                    gui::ItemMenuResult::NoResponse => {},
+                    gui::ItemMenuResult::Cancel => {
+                        newrunstate = RunState::AwaitingInput;
+                    },
+                    gui::ItemMenuResult::Selected => {
+                        let item_entity = result.i.unwrap();
+                        let mut intent = self.ecs.write_storage::<WantsToDropItem>();
+                        intent.insert(*self.ecs.fetch::<Entity>(), WantsToDropItem{ item: item_entity }).expect("Unable to insert intent");
                         newrunstate = RunState::PlayerTurn;
                     }
                 }

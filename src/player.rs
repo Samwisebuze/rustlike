@@ -84,7 +84,8 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
 
             // Pickup
             VirtualKeyCode::G => get_item(&mut gs.ecs),
-
+            // Drop 
+            VirtualKeyCode::D => return RunState::ShowDropItem,
             // Inventory
             VirtualKeyCode::I => return RunState::ShowInventory,
 
