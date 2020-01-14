@@ -42,11 +42,13 @@ impl State {
         let mut map_idx = MapIndexingSystem {};
         let mut dmg = DamageSystem {};
         let mut melee = MeleeCombatSystem {};
+        let mut pickup = ItemCollectionSystem{};
         vis.run_now(&self.ecs);
         mob.run_now(&self.ecs);
         map_idx.run_now(&self.ecs);
         melee.run_now(&self.ecs);
         dmg.run_now(&self.ecs);
+        pickup.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
