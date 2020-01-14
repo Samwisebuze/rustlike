@@ -8,6 +8,10 @@ use super::{CombatStats, Player, Renderable, Name, Position, Viewshed, Monster, 
 const MAX_MONSTERS : i32 = 4;
 const MAX_ITEMS : i32 = 2;
 
+const RENDER_LVL_PLAYER : i32 = 0;
+const RENDER_LVL_MOB : i32 = 1;
+const RENDER_LVL_ITEM : i32 = 2;
+
 
 /// Spawns the player and returns his/her entity object.
 pub fn player(ecs : &mut World, player_x : i32, player_y : i32) -> Entity {
@@ -18,6 +22,7 @@ pub fn player(ecs : &mut World, player_x : i32, player_y : i32) -> Entity {
             glyph: rltk::to_cp437('@'),
             fg: RGB::named(rltk::YELLOW),
             bg: RGB::named(rltk::BLACK),
+            render_order: RENDER_LVL_PLAYER
         })
         .with(Player{})
         .with(Viewshed{ visible_tiles : Vec::new(), range: 8, dirty: true })
@@ -49,6 +54,7 @@ fn monster<S : ToString>(ecs: &mut World, x: i32, y: i32, glyph : u8, name : S) 
             glyph,
             fg: RGB::named(rltk::RED),
             bg: RGB::named(rltk::BLACK),
+            render_order: RENDER_LVL_MOB
         })
         .with(Viewshed{ visible_tiles : Vec::new(), range: 8, dirty: true })
         .with(Monster{})
@@ -65,6 +71,7 @@ fn health_potion(ecs: &mut World, x: i32, y: i32) {
             glyph: rltk::to_cp437('¡'),
             fg: RGB::named(rltk::MAGENTA),
             bg: RGB::named(rltk::BLACK),
+            render_order: RENDER_LVL_ITEM 
         })
         .with(Name{ name : "Health Potion".to_string() })
         .with(Item{})
