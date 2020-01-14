@@ -5,9 +5,9 @@ use std::cmp::{max, min};
 
 pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
     let mut positions = ecs.write_storage::<Position>();
-    let players = ecs.write_storage::<Player>();
     let mut viewsheds = ecs.write_storage::<Viewshed>();
     let mut wants_to_melee = ecs.write_storage::<WantsToMelee>();
+    let players = ecs.write_storage::<Player>();
     let entities = ecs.entities();
     let combat_stats = ecs.read_storage::<CombatStats>();
     let map = ecs.fetch::<Map>();
@@ -88,34 +88,3 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
     RunState::PlayerTurn
 }
 
-pub fn init_player(x: i32, y: i32, ecs: &mut World) -> Entity {
-    let player_entity = ecs
-        .create_entity()
-        .with(Position {
-            x: x,
-            y: y,
-        })
-        .with(Renderable {
-            glyph: rltk::to_cp437('@'),
-            fg: RGB::named(rltk::YELLOW),
-            bg: RGB::named(rltk::BLACK),
-        })
-        .with(Player {})
-        .with(Viewshed {
-            visible_tiles: Vec::new(),
-            range: 8,
-            dirty: true,
-        })
-        .with(Name {
-            name: "Player".to_string(),
-        })
-        .with(CombatStats {
-            max_hp: 30,
-            hp: 30,
-            defense: 2,
-            power: 5,
-        })
-        .build();
-
-    player_entity
-}
