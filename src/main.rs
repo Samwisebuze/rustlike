@@ -22,16 +22,23 @@ mod damage_system;
 use damage_system::DamageSystem;
 mod melee_combat_system;
 use melee_combat_system::MeleeCombatSystem;
-mod gui;
 mod gamelog;
-mod spawner;
+mod gui;
 mod inventory_system;
-use inventory_system::{ItemCollectionSystem, PotionUseSystem, ItemDropSystem};
+mod spawner;
+use inventory_system::{ItemCollectionSystem, ItemDropSystem, PotionUseSystem};
 
 rltk::add_wasm_support!();
 
 #[derive(PartialEq, Copy, Clone)]
-pub enum RunState { AwaitingInput, PreRun, PlayerTurn, MonsterTurn, ShowInventory, ShowDropItem }    
+pub enum RunState {
+    AwaitingInput,
+    PreRun,
+    PlayerTurn,
+    MonsterTurn,
+    ShowInventory,
+    ShowDropItem,
+}
 
 pub struct State {
     pub ecs: World,
@@ -44,9 +51,9 @@ impl State {
         let mut map_idx = MapIndexingSystem {};
         let mut dmg = DamageSystem {};
         let mut melee = MeleeCombatSystem {};
-        let mut pickup = ItemCollectionSystem{};
-        let mut potions = PotionUseSystem{};
-        let mut drop_items = ItemDropSystem{};
+        let mut pickup = ItemCollectionSystem {};
+        let mut potions = PotionUseSystem {};
+        let mut drop_items = ItemDropSystem {};
         vis.run_now(&self.ecs);
         mob.run_now(&self.ecs);
         map_idx.run_now(&self.ecs);
@@ -63,11 +70,12 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         ctx.cls();
         let mut newrunstate;
-        { // Borrow-Checker Scope
+        {
+            // Borrow-Checker Scope
             let runstate = self.ecs.fetch::<RunState>();
             newrunstate = *runstate;
         }
-        
+
         match newrunstate {
             RunState::PreRun => {
                 self.run_systems();
@@ -95,9 +103,14 @@ impl GameState for State {
                     gui::ItemMenuResult::Selected => {
                         let item_entity = result.1.unwrap();
                         let mut intent = self.ecs.write_storage::<WantsToDrinkPotion>();
-                        intent.insert(  *self.ecs.fetch::<Entity>(), 
-                                        WantsToDrinkPotion{ potion: item_entity })
-                                .expect("Unable to insert intent");
+                        intent
+                            .insert(
+                                *self.ecs.fetch::<Entity>(),
+                                WantsToDrinkPotion {
+                                    potion: item_entity,
+                                },
+                            )
+                            .expect("Unable to insert intent");
                         newrunstate = RunState::PlayerTurn;
                     }
                 }
@@ -105,21 +118,27 @@ impl GameState for State {
             RunState::ShowDropItem => {
                 let result = gui::drop_item_menu(self, ctx);
                 match result.0 {
-                    gui::ItemMenuResult::NoResponse => {},
+                    gui::ItemMenuResult::NoResponse => {}
                     gui::ItemMenuResult::Cancel => {
                         newrunstate = RunState::AwaitingInput;
-                    },
+                    }
                     gui::ItemMenuResult::Selected => {
                         let item_entity = result.1.unwrap();
                         let mut intent = self.ecs.write_storage::<WantsToDropItem>();
-                        intent.insert(*self.ecs.fetch::<Entity>(), WantsToDropItem{ item: item_entity }).expect("Unable to insert intent");
+                        intent
+                            .insert(
+                                *self.ecs.fetch::<Entity>(),
+                                WantsToDropItem { item: item_entity },
+                            )
+                            .expect("Unable to insert intent");
                         newrunstate = RunState::PlayerTurn;
                     }
                 }
             }
         }
 
-        { // Borrow_Checker Scope
+        {
+            // Borrow_Checker Scope
             let mut runwriter = self.ecs.write_resource::<RunState>();
             *runwriter = newrunstate;
         }
@@ -134,10 +153,12 @@ impl GameState for State {
             let map = self.ecs.fetch::<Map>();
 
             let mut data = (&positions, &renderables).join().collect::<Vec<_>>();
-            data.sort_by(|&a, &b| b.1.render_order.cmp(&a.1.render_order) );
+            data.sort_by(|&a, &b| b.1.render_order.cmp(&a.1.render_order));
             for (pos, render) in data.iter() {
                 let idx = map.xy_idx(pos.x, pos.y);
-                if map.visible_tiles[idx] { ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph) }
+                if map.visible_tiles[idx] {
+                    ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph)
+                }
             }
         }
 
@@ -148,10 +169,8 @@ impl GameState for State {
 fn main() {
     let mut context = Rltk::init_simple8x8(80, 50, "Rustlike", "resources");
     context.with_post_scanlines(true);
-    let mut gs = State {
-        ecs: World::new(),
-    };
-    
+    let mut gs = State { ecs: World::new() };
+
     // Register Components to World
     gs.ecs.register::<Position>();
     gs.ecs.register::<Renderable>();
@@ -168,7 +187,8 @@ fn main() {
     gs.ecs.register::<InBackpack>();
     gs.ecs.register::<WantsToPickupItem>();
     gs.ecs.register::<WantsToDrinkPotion>();
-    
+    gs.ecs.register::<WantsToDropItem>();
+
     gs.ecs.insert(rltk::RandomNumberGenerator::new());
     // Generate Map
     let map: Map = Map::new_map_rooms_and_corridors();
@@ -186,7 +206,9 @@ fn main() {
     gs.ecs.insert(Point::new(player_x, player_y));
     gs.ecs.insert(player_entity);
     gs.ecs.insert(RunState::PreRun);
-    gs.ecs.insert(gamelog::GameLog{ entries : vec!["Welcome to Rustlike".to_string()] });
+    gs.ecs.insert(gamelog::GameLog {
+        entries: vec!["Welcome to Rustlike".to_string()],
+    });
 
     rltk::main_loop(context, gs);
 }

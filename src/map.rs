@@ -5,9 +5,9 @@ use std::cmp::{max, min};
 extern crate specs;
 use specs::prelude::*;
 
-pub const MAPWIDTH : usize = 80;
-pub const MAPHEIGHT : usize = 43;
-pub const MAPCOUNT : usize = MAPHEIGHT * MAPWIDTH;
+pub const MAPWIDTH: usize = 80;
+pub const MAPHEIGHT: usize = 43;
+pub const MAPCOUNT: usize = MAPHEIGHT * MAPWIDTH;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum TileType {
@@ -228,7 +228,7 @@ pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
 
         // Move the coordinates
         x += 1;
-        if x > MAPWIDTH as i32-1 {
+        if x > MAPWIDTH as i32 - 1 {
             x = 0;
             y += 1;
         }

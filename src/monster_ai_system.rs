@@ -1,5 +1,5 @@
 extern crate specs;
-use super::{Map, Monster, Position, Viewshed, WantsToMelee, RunState};
+use super::{Map, Monster, Position, RunState, Viewshed, WantsToMelee};
 use specs::prelude::*;
 extern crate rltk;
 use rltk::Point;
@@ -36,7 +36,9 @@ impl<'a> System<'a> for MonsterAI {
         for (entity, mut viewshed, _monster, mut pos) in
             (&entities, &mut viewshed, &monster, &mut position).join()
         {
-            if *runstate != RunState::MonsterTurn { return; }
+            if *runstate != RunState::MonsterTurn {
+                return;
+            }
 
             let distance =
                 rltk::DistanceAlg::Pythagoras.distance2d(Point::new(pos.x, pos.y), *player_pos);
