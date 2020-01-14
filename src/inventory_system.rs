@@ -1,7 +1,7 @@
 extern crate specs;
 use super::{
-    gamelog::GameLog, CombatStats, Consumable, InBackpack, Name, Position, WantsToDropItem,
-    WantsToPickupItem, WantsToUseItem, ProvidesHealing
+    gamelog::GameLog, CombatStats, Consumable, InBackpack, Name, Position, ProvidesHealing,
+    WantsToDropItem, WantsToPickupItem, WantsToUseItem, InflictsDamage
 };
 use specs::prelude::*;
 
@@ -59,6 +59,7 @@ impl<'a> System<'a> for ItemUseSystem {
         Entities<'a>,
         WriteStorage<'a, WantsToUseItem>,
         ReadStorage<'a, ProvidesHealing>,
+        ReadStorage<'a, InflictsDamage>,
         ReadStorage<'a, Name>,
         ReadStorage<'a, Consumable>,
         WriteStorage<'a, CombatStats>,
@@ -71,6 +72,7 @@ impl<'a> System<'a> for ItemUseSystem {
             entities,
             mut wants_use,
             healing,
+            inflict_damage,
             names,
             consumables,
             mut combat_stats,
@@ -91,6 +93,40 @@ impl<'a> System<'a> for ItemUseSystem {
                                 healer.heal_amount
                             ),
                         );
+                    }
+                }
+            }
+
+            // If it inflicts damage, apply it to the target cell
+            let item_damages = inflict_damage.get(useitem.item);
+            match item_damages {
+                None => {}
+                Some(damage) => {
+                    let target_point = useitem.target.unwrap();
+                    let idx = map.xy_idx(target_point.x, target_point.y);
+                    used_item = false;
+                    for mob in map.tile_content[idx].iter() {
+                        suffer_damage
+                            .insert(
+                                *mob,
+                                SufferDamage {
+                                    amount: damage.damage,
+                                },
+                            )
+                            .expect("Unable to insert");
+                        if entity == *player_entity {
+                            let mob_name = names.get(*mob).unwrap();
+                            let item_name = names.get(useitem.item).unwrap();
+                            gamelog.entries.insert(
+                                0,
+                                format!(
+                                    "You use {} on {}, inflicting {} hp.",
+                                    item_name.name, mob_name.name, damage.damage
+                                ),
+                            );
+                        }
+
+                        used_item = true;
                     }
                 }
             }
