@@ -19,6 +19,7 @@
         "runstate",
         "runwriter",
         "rustacean",
+        "scanlines",
         "viewsheds",
         "wasm"
     ]
