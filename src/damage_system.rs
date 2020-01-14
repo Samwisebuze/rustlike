@@ -2,7 +2,7 @@ extern crate specs;
 use specs::prelude::*;
 extern crate rltk;
 use rltk::console;
-use super::{CombatStats, SufferDamage, Player};
+use super::{CombatStats, SufferDamage, Player, gamelog::GameLog, Name};
 
 pub struct DamageSystem {}
 
@@ -27,6 +27,8 @@ pub fn delete_the_dead(ecs: &mut World) {
     let mut dead: Vec<Entity> = Vec::new();
     // Using a scope to make the borrow checker happy
     {
+        let mut log = ecs.write_resource::<GameLog>();
+        let names = ecs.read_storage::<Name>();
         let combat_stats = ecs.read_storage::<CombatStats>();
         let players = ecs.read_storage::<Player>();
         let entities = ecs.entities();
@@ -35,7 +37,13 @@ pub fn delete_the_dead(ecs: &mut World) {
             if stats.hp < 1 {
                 let player = players.get(entity);
                 match player {
-                    None => dead.push(entity),
+                    None => {
+                        let victim_name = names.get(entity);
+                        if let Some(victim_name) = victim_name {
+                            log.entries.insert(0, format!("{} is dead", &victim_name.name));
+                        }
+                        dead.push(entity)
+                    },
                     Some(_) => console::log("You are dead.") 
                 }
             }

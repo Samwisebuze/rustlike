@@ -23,6 +23,7 @@ use damage_system::DamageSystem;
 mod melee_combat_system;
 use melee_combat_system::MeleeCombatSystem;
 mod gui;
+mod gamelog;
 
 rltk::add_wasm_support!();
 
@@ -108,6 +109,7 @@ fn main() {
         ecs: World::new(),
     };
     gs.ecs.insert(RunState::PreRun);
+    gs.ecs.insert(gamelog::GameLog{ entries : vec!["Welcome to Rustlike".to_string()] });
     // Register Components to World
     gs.ecs.register::<Position>();
     gs.ecs.register::<Renderable>();

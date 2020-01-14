@@ -9,6 +9,7 @@
         "Saveload",
         "Viewshed",
         "clippy",
+        "gamelog",
         "greyscale",
         "newrunstate",
         "pathing",
