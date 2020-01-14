@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
+        "MAPCOUNT",
+        "MAPHEIGHT",
+        "MAPWIDTH",
         "Numpad",
         "Renderable",
         "Rustlike",

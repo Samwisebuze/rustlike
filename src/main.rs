@@ -22,6 +22,7 @@ mod damage_system;
 use damage_system::DamageSystem;
 mod melee_combat_system;
 use melee_combat_system::MeleeCombatSystem;
+mod gui;
 
 rltk::add_wasm_support!();
 
@@ -96,6 +97,8 @@ impl GameState for State {
                 }
             }
         }
+
+        gui::draw_ui(&self.ecs, ctx);
     }
 }
 
