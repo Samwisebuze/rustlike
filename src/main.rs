@@ -110,7 +110,7 @@ impl GameState for State {
                         newrunstate = RunState::AwaitingInput;
                     },
                     gui::ItemMenuResult::Selected => {
-                        let item_entity = result.i.unwrap();
+                        let item_entity = result.1.unwrap();
                         let mut intent = self.ecs.write_storage::<WantsToDropItem>();
                         intent.insert(*self.ecs.fetch::<Entity>(), WantsToDropItem{ item: item_entity }).expect("Unable to insert intent");
                         newrunstate = RunState::PlayerTurn;
