@@ -1,5 +1,5 @@
-use super::{CombatStats, Map, Player, Position, RunState, State, Viewshed, WantsToMelee};
-use rltk::{Point, Rltk, VirtualKeyCode};
+use super::{CombatStats, Map, Player, Position, RunState, State, Viewshed, WantsToMelee, Renderable, Name};
+use rltk::{Point, Rltk, VirtualKeyCode, RGB};
 use specs::prelude::*;
 use std::cmp::{max, min};
 
@@ -86,4 +86,36 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
         },
     }
     RunState::PlayerTurn
+}
+
+pub fn init_player(x: i32, y: i32, ecs: &mut World) -> Entity {
+    let player_entity = ecs
+        .create_entity()
+        .with(Position {
+            x: x,
+            y: y,
+        })
+        .with(Renderable {
+            glyph: rltk::to_cp437('@'),
+            fg: RGB::named(rltk::YELLOW),
+            bg: RGB::named(rltk::BLACK),
+        })
+        .with(Player {})
+        .with(Viewshed {
+            visible_tiles: Vec::new(),
+            range: 8,
+            dirty: true,
+        })
+        .with(Name {
+            name: "Player".to_string(),
+        })
+        .with(CombatStats {
+            max_hp: 30,
+            hp: 30,
+            defense: 2,
+            power: 5,
+        })
+        .build();
+
+    player_entity
 }

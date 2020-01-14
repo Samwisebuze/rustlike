@@ -82,16 +82,18 @@ impl GameState for State {
         // *BONG* BRING OUT YER DEAD *BONG*
         damage_system::delete_the_dead(&mut self.ecs);
         // Render Loop
-        draw_map(&self.ecs, ctx);
+        {
+            draw_map(&self.ecs, ctx);
 
-        let positions = self.ecs.read_storage::<Position>();
-        let renderables = self.ecs.read_storage::<Renderable>();
-        let map = self.ecs.fetch::<Map>();
+            let positions = self.ecs.read_storage::<Position>();
+            let renderables = self.ecs.read_storage::<Renderable>();
+            let map = self.ecs.fetch::<Map>();
 
-        for (pos, render) in (&positions, &renderables).join() {
-            let idx = map.xy_idx(pos.x, pos.y);
-            if map.visible_tiles[idx] { 
-                ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph) 
+            for (pos, render) in (&positions, &renderables).join() {
+                let idx = map.xy_idx(pos.x, pos.y);
+                if map.visible_tiles[idx] { 
+                    ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph) 
+                }
             }
         }
     }
@@ -102,8 +104,8 @@ fn main() {
     let mut gs = State {
         ecs: World::new(),
     };
-    // Register Components to World
     gs.ecs.insert(RunState::PreRun);
+    // Register Components to World
     gs.ecs.register::<Position>();
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<Player>();
@@ -117,7 +119,7 @@ fn main() {
 
     // Generate Map
     let map: Map = Map::new_map_rooms_and_corridors();
-    // Get Player's Spawn
+    // Get Player's Spawn point
     let (player_x, player_y) = map.rooms[0].center();
 
     let mut rng = RandomNumberGenerator::new();
@@ -165,36 +167,8 @@ fn main() {
     }
 
     gs.ecs.insert(map);
-
-    let player_entity = gs
-        .ecs
-        .create_entity()
-        .with(Position {
-            x: player_x,
-            y: player_y,
-        })
-        .with(Renderable {
-            glyph: rltk::to_cp437('@'),
-            fg: RGB::named(rltk::YELLOW),
-            bg: RGB::named(rltk::BLACK),
-        })
-        .with(Player {})
-        .with(Viewshed {
-            visible_tiles: Vec::new(),
-            range: 8,
-            dirty: true,
-        })
-        .with(Name {
-            name: "Player".to_string(),
-        })
-        .with(CombatStats {
-            max_hp: 30,
-            hp: 30,
-            defense: 2,
-            power: 5,
-        })
-        .build();
-
+    // Initialize Player Entity
+    let player_entity = player::init_player(player_x, player_y, &mut gs.ecs);
     gs.ecs.insert(player_entity);
     // Register Player's Point with the world
     gs.ecs.insert(Point::new(player_x, player_y));
