@@ -18,6 +18,10 @@ mod monster_ai_system;
 use monster_ai_system::MonsterAI;
 mod map_indexing_system;
 use map_indexing_system::MapIndexingSystem;
+mod damage_system;
+use damage_system::DamageSystem;
+mod melee_combat_system;
+use melee_combat_system::MeleeCombatSystem;
 
 rltk::add_wasm_support!();
 
@@ -37,9 +41,14 @@ impl State {
         let mut vis = VisibilitySystem {};
         let mut mob = MonsterAI {};
         let mut map_idx = MapIndexingSystem {};
+        let mut dmg = DamageSystem {};
+        let mut melee = MeleeCombatSystem {};
         vis.run_now(&self.ecs);
         mob.run_now(&self.ecs);
         map_idx.run_now(&self.ecs);
+        melee.run_now(&self.ecs);
+        dmg.run_now(&self.ecs);
+        damage_system::delete_the_dead(&mut self.ecs);
         self.ecs.maintain();
     }
 }
@@ -85,6 +94,8 @@ fn main() {
     gs.ecs.register::<Name>();
     gs.ecs.register::<BlocksTile>();
     gs.ecs.register::<CombatStats>();
+    gs.ecs.register::<WantsToMelee>();
+    gs.ecs.register::<SufferDamage>();
 
     // Generate Map
     let map: Map = Map::new_map_rooms_and_corridors();
