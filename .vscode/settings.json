@@ -21,6 +21,7 @@
         "runwriter",
         "rustacean",
         "scanlines",
+        "useitem",
         "viewsheds",
         "wasm"
     ]

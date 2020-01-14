@@ -26,7 +26,7 @@ mod gamelog;
 mod gui;
 mod inventory_system;
 mod spawner;
-use inventory_system::{ItemCollectionSystem, ItemDropSystem, PotionUseSystem};
+use inventory_system::{ItemCollectionSystem, ItemDropSystem, ItemUseSystem};
 
 rltk::add_wasm_support!();
 
@@ -52,7 +52,7 @@ impl State {
         let mut dmg = DamageSystem {};
         let mut melee = MeleeCombatSystem {};
         let mut pickup = ItemCollectionSystem {};
-        let mut potions = PotionUseSystem {};
+        let mut potions = ItemUseSystem {};
         let mut drop_items = ItemDropSystem {};
         vis.run_now(&self.ecs);
         mob.run_now(&self.ecs);
@@ -102,12 +102,12 @@ impl GameState for State {
                     gui::ItemMenuResult::NoResponse => {}
                     gui::ItemMenuResult::Selected => {
                         let item_entity = result.1.unwrap();
-                        let mut intent = self.ecs.write_storage::<WantsToDrinkPotion>();
+                        let mut intent = self.ecs.write_storage::<WantsToUseItem>();
                         intent
                             .insert(
                                 *self.ecs.fetch::<Entity>(),
-                                WantsToDrinkPotion {
-                                    potion: item_entity,
+                                WantsToUseItem {
+                                    item: item_entity,
                                 },
                             )
                             .expect("Unable to insert intent");
@@ -183,11 +183,14 @@ fn main() {
     gs.ecs.register::<WantsToMelee>();
     gs.ecs.register::<SufferDamage>();
     gs.ecs.register::<Item>();
-    gs.ecs.register::<Potion>();
+    gs.ecs.register::<ProvidesHealing>();
     gs.ecs.register::<InBackpack>();
     gs.ecs.register::<WantsToPickupItem>();
-    gs.ecs.register::<WantsToDrinkPotion>();
+    gs.ecs.register::<WantsToUseItem>();
     gs.ecs.register::<WantsToDropItem>();
+    gs.ecs.register::<Consumable>();
+    gs.ecs.register::<Ranged>();
+    gs.ecs.register::<InflictsDamage>();
 
     gs.ecs.insert(rltk::RandomNumberGenerator::new());
     // Generate Map
