@@ -1,8 +1,8 @@
 extern crate specs;
 use specs::prelude::*;
-extern crate specs_derive;
 extern crate rltk;
-use rltk::{RGB};
+extern crate specs_derive;
+use rltk::RGB;
 
 #[derive(Component)]
 pub struct Position {
@@ -48,10 +48,10 @@ pub struct CombatStats {
 
 #[derive(Component, Debug, Clone)]
 pub struct WantsToMelee {
-    pub target : Entity
+    pub target: Entity,
 }
 
 #[derive(Component, Debug)]
 pub struct SufferDamage {
-    pub amount : i32
+    pub amount: i32,
 }

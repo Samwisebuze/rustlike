@@ -7,11 +7,13 @@
         "Viewshed",
         "clippy",
         "greyscale",
+        "newrunstate",
         "pathing",
         "ppos",
         "renderables",
         "rltk",
         "runstate",
+        "runwriter",
         "rustacean",
         "viewsheds",
         "wasm"
