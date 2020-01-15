@@ -116,7 +116,7 @@ impl GameState for State {
                             intent
                                 .insert(
                                     *self.ecs.fetch::<Entity>(),
-                                    WantsToUseItem { item: item_entity },
+                                    WantsToUseItem { item: item_entity, target: None },
                                 )
                                 .expect("Unable to insert intent");
                             newrunstate = RunState::PlayerTurn;
@@ -145,7 +145,7 @@ impl GameState for State {
                 }
             }
             RunState::ShowTargeting { range, item } => {
-                let target = gui::ranged_target(self, ctx, range, item);
+                let result = gui::ranged_target(self, ctx, range);
                 match result.0 {
                     gui::ItemMenuResult::Cancel => newrunstate = RunState::AwaitingInput,
                     gui::ItemMenuResult::NoResponse => {}
