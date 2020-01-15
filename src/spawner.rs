@@ -3,7 +3,8 @@ use rltk::{RandomNumberGenerator, RGB};
 extern crate specs;
 use super::{
     map::MAPWIDTH, BlocksTile, CombatStats, Consumable, InflictsDamage, Item, Monster, Name,
-    Player, Position, ProvidesHealing, Ranged, Rect, Renderable, Viewshed, AreaOfEffect
+    Player, Position, ProvidesHealing, Ranged, Rect, Renderable, Viewshed, AreaOfEffect,
+    Confusion
 };
 use specs::prelude::*;
 
@@ -148,15 +149,33 @@ fn fireball_scroll(ecs: &mut World, x: i32, y: i32) {
         .build();
 }
 
+fn confusion_scroll(ecs: &mut World, x: i32, y: i32) {
+    ecs.create_entity()
+        .with(Position{ x, y })
+        .with(Renderable{
+            glyph: rltk::to_cp437(')'),
+            fg: RGB::named(rltk::PINK),
+            bg: RGB::named(rltk::BLACK),
+            render_order: 2
+        })
+        .with(Name{ name : "Confusion Scroll".to_string() })
+        .with(Item{})
+        .with(Consumable{})
+        .with(Ranged{ range: 6 })
+        .with(Confusion{ turns: 4 })
+        .build();
+}
+
 fn random_item(ecs: &mut World, x: i32, y: i32) {
     let roll: i32;
     {
         let mut rng = ecs.write_resource::<RandomNumberGenerator>();
-        roll = rng.roll_dice(1, 3);
+        roll = rng.roll_dice(1, 4);
     }
     match roll {
         1 => health_potion(ecs, x, y),
         2 => fireball_scroll(ecs, x, y),
+        3 => confusion_scroll(ecs, x, y),
         _ => magic_missile_scroll(ecs, x, y),
     }
 }
