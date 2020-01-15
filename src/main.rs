@@ -204,14 +204,16 @@ fn main() {
     gs.ecs.register::<WantsToMelee>();
     gs.ecs.register::<SufferDamage>();
     gs.ecs.register::<Item>();
-    gs.ecs.register::<ProvidesHealing>();
+    gs.ecs.register::<Consumable>();
+    gs.ecs.register::<Ranged>();
     gs.ecs.register::<InBackpack>();
+    gs.ecs.register::<AreaOfEffect>();
+    gs.ecs.register::<ProvidesHealing>();
+    gs.ecs.register::<InflictsDamage>();
     gs.ecs.register::<WantsToPickupItem>();
     gs.ecs.register::<WantsToUseItem>();
     gs.ecs.register::<WantsToDropItem>();
-    gs.ecs.register::<Consumable>();
-    gs.ecs.register::<Ranged>();
-    gs.ecs.register::<InflictsDamage>();
+
 
     gs.ecs.insert(rltk::RandomNumberGenerator::new());
     // Generate Map
